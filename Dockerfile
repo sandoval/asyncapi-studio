@@ -6,12 +6,20 @@ FROM docker.io/library/node:16.13.2 as build
 ARG BASE_URL_PLACEHOLDER
 
 # Skip puppeteer download since chromium isn't used by the project.
-ARG PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+ARG PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+# Optionally skip tests if set to anything different than "false".
+ARG SKIP_TESTS=false
+# Set base directory for building
+WORKDIR /base
 
 COPY package.json package-lock.json ./
 RUN npm install --frozen-lockfile
 
 COPY ./ ./
+
+# Run tests
+RUN [ "${SKIP_TESTS}" = "false" ] && CI=true npm run test
+
 # Set the React PUBLIC_URL to our placeholder value so that
 # that it can easily be replaced with the actual base URL
 # in the entrypoint script below.
@@ -26,7 +34,7 @@ ARG BASE_URL_PLACEHOLDER
 # https://github.com/nginxinc/docker-nginx/blob/master/entrypoint/docker-entrypoint.sh#L16.
 ARG ENTRYPOINT_SCRIPT=/docker-entrypoint.d/set-public-url.sh
 
-COPY --from=build /build /usr/share/nginx/html/
+COPY --from=build /base/build /usr/share/nginx/html/
 # Add an entrypoint script that replaces all occurrences of the 
 # placeholder value by the configured base URL. If no base URL
 # is configured we assume the application is running at '/'.
