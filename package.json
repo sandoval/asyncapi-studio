@@ -35,7 +35,6 @@
     "@headlessui/react": "1.4.1",
     "@hookstate/core": "^3.0.12",
     "@monaco-editor/react": "^4.4.5",
-    "@semantic-release-plus/docker": "^3.1.1",
     "js-base64": "^3.7.2",
     "js-file-download": "^0.4.12",
     "js-yaml": "^4.1.0",
@@ -59,7 +58,7 @@
     "generate:readme:toc": "markdown-toc -i README.md",
     "generate:assets": "npm run build && npm run generate:readme:toc",
     "generate:template-parameters": "ts-node ./scripts/template-parameters.ts",
-    "generate:docker": "docker buildx build --platform linux/amd64,linux/arm64 --tag asyncapi/studio .",
+    "generate:docker": "docker build --tag asyncapi/studio .",
     "bump:version": "npm --no-git-tag-version --allow-same-version version $VERSION",
     "release": "npm run generate:docker && semantic-release",
     "prepublishOnly": "npm run build && npm run generate:readme:toc"
@@ -145,14 +144,7 @@
         }
       ],
       "@semantic-release/npm",
-      "@semantic-release/github",
-      [
-        "@semantic-release-plus/docker",
-        {
-          "name": "asyncapi/studio",
-          "publishChannelTag": true
-        }
-      ]
+      "@semantic-release/github"
     ]
   }
 }
